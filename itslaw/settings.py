@@ -14,12 +14,11 @@ BOT_NAME = 'itslaw'
 SPIDER_MODULES = ['itslaw.spiders']
 NEWSPIDER_MODULE = 'itslaw.spiders'
 
-
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'itslaw (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -33,28 +32,40 @@ ROBOTSTXT_OBEY = True
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
-#DEFAULT_REQUEST_HEADERS = {
-#   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-#   'Accept-Language': 'en',
-#}
+DEFAULT_REQUEST_HEADERS = {
+    "Host": "www.itslaw.com", 
+    "Connection": "keep-alive", 
+    "Cache-Control": "no-cache", 
+    "Accept": "application/json, text/plain, */*", 
+    "Pragma": "no-cache", 
+    "DNT": "1", 
+    "If-Modified-Since": "Mon, 26 Jul 1997 05:00:00 GMT", 
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3724.8 Safari/537.36", 
+    "Referer": "https://www.itslaw.com/search?searchMode=judgements&sortType=1&conditions=trialYear%2B1994%2B7%2B1994", 
+    "Accept-Encoding": "gzip, deflate, br", 
+    "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7", 
+    "Cookie": "_t=f239972c-ab49-4087-ada5-98f41526c9de; showSubSiteTip=false; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1552031585; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1552031585; hideReportMaterialTip=true; subSiteCode=bj; sessionId=c026ba26-bd66-4a75-95c9-258107ee6854; _u=b84fe7a6-34f4-4fd7-a94b-52f2cbf380f8; _i=36f6cd52-d0ca-401a-8869-78c5f897bb84; _p=b028619c-a6b7-49ba-a602-d8ce1eff1392; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1553826531; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1553826531", 
+}
 
 # Enable or disable spider middlewares
 # See https://doc.scrapy.org/en/latest/topics/spider-middleware.html
-#SPIDER_MIDDLEWARES = {
-#    'itslaw.middlewares.ItslawSpiderMiddleware': 543,
-#}
+# SPIDER_MIDDLEWARES = {
+#    'itslaw.middlewares.ProxyMiddleware': 100,
+# }
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    'itslaw.middlewares.ItslawDownloaderMiddleware': 543,
-#}
+DOWNLOADER_MIDDLEWARES = {
+    # 'scrapy.downloadermiddlewares.retry.RetryMiddleware': 90,
+    'itslaw.middlewares.ItslawDownloaderMiddleware': 100,
+    # 'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+}
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
@@ -64,9 +75,9 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'itslaw.pipelines.ItslawPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'itslaw.pipelines.ItslawPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -88,3 +99,10 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+REDIS_HOST = "localhost"
+REDIS_PORT = 6379
+# LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
+# DOWNLOAD_TIMEOUT = 1
+PROXY_POOL = "pool"
+PROXY_SAVE = "great"
