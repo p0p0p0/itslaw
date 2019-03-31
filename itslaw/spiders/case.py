@@ -17,8 +17,7 @@ ua = UserAgent()
 class CaseSpider(scrapy.Spider):
     name = 'case'
     allowed_domains = ['www.itslaw.com']
-    base_url ="https://www.itslaw.com/api/v1/detail?"
-    r = Redis()
+    base_url ="https://www.itslaw.com/api/v1/detail?" 
     custom_settings = {
         # "LOG_LEVEL": "DEBUG",
         "DOWNLOAD_TIMEOUT": 5,
@@ -34,8 +33,13 @@ class CaseSpider(scrapy.Spider):
     settings = get_project_settings()
     proxy_pool = settings.get("PROXY_POOL")
     proxy_save = settings.get("PROXY_SAVE")
+    redis_host = settings.get("REDIS_HOST")
+    redis_port = settings.get("REDIS_PORT")
+    r = Redis(host=redis_host, port=redis_port)
 
     def start_requests(self):
+        print(self.redis_host, self.redis_port)
+        return
         for _ in range(50000):
             proxy = self.r.spop(f"proxy:{self.proxy_pool}")
             proxy = str(proxy, encoding="utf-8")
