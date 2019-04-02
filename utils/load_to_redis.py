@@ -25,4 +25,4 @@ def pull(count):
             print(e)
 
 if __name__ == "__main__":
-    pull(10000)
+    pull(100000)
