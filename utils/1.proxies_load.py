@@ -30,7 +30,9 @@ def load_from_66ip():
     url = "http://www.66ip.cn/nmtq.php?getnum=100&area=1&proxytype=2&isp=1&anonymoustype=4"
     res = requests.get(url)
     for proxy in re.findall(pattern, str(res.content, encoding="gbk")):
-        r.zadd("proxy:rank", {proxy: 3})
+        score = r.zscore("proxy:rank", proxy)
+        if None == score:
+            r.zadd("proxy:rank", {proxy: 3})
 
 
 def load_from_xici():

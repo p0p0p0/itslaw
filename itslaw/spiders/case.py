@@ -20,7 +20,7 @@ class CaseSpider(scrapy.Spider):
     allowed_domains = ['www.itslaw.com']
     base_url ="https://www.itslaw.com/api/v1/detail?" 
     custom_settings = {
-        # "LOG_LEVEL": "DEBUG",
+        "LOG_LEVEL": "DEBUG",
         "DOWNLOAD_TIMEOUT": 5,
         # "DOWNLOAD_DELAY": 0.5,
         "DOWNLOADER_MIDDLEWARES": {
@@ -51,7 +51,7 @@ class CaseSpider(scrapy.Spider):
             proxy = str(random.choice(proxies), encoding="utf-8")
             proxy = f"http://{proxy}"
             doc = self.r.srandmember("itslaw:id")
-            if self.r.sismember("itslaw:crawled", doc) or self.r.sismember("itslaw:jid", doc):
+            if self.r.sismember("itslaw:jid", doc):
                 continue
             timestamp = str(int(time()*1000))
             judgementId = str(doc, encoding="utf-8")

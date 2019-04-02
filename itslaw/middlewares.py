@@ -9,7 +9,10 @@ import random
 
 from scrapy import signals
 from twisted.web._newclient import ResponseNeverReceived
-from twisted.internet.error import TCPTimedOutError
+from twisted.internet.error import TimeoutError, DNSLookupError, ConnectionLost, TCPTimedOutError
+from twisted.internet.error import ConnectionRefusedError, ConnectionDone, ConnectError
+from scrapy.core.downloader.handlers.http11 import TunnelError
+from twisted.web._newclient import ResponseFailed
 
 class ItslawSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -151,13 +154,15 @@ class ProxyMiddleware(object):
         # - return None: continue processing this exception
         # - return a Response object: stops process_exception() chain
         # - return a Request object: stops process_exception() chain
-        req = request.copy()
-        req.dont_filter = True
-        proxies = spider.r.zrangebyscore(spider.redis_key, spider.init_score+1, spider.max_score, start=0, num=100)
-        proxy = str(random.choice(proxies), encoding="utf-8")
-        req.meta['proxy'] = f"http://{proxy}"
-        spider.logger.debug(f"[+] {proxy} reload")
-        return req
+        if isinstance(exception, (TimeoutError, TunnelError, ConnectError, ResponseFailed)):
+            req = request.copy()
+            req.dont_filter = True
+            proxies = spider.r.zrangebyscore(spider.redis_key, spider.init_score+1, spider.max_score, start=0, num=100)
+            proxy = str(random.choice(proxies), encoding="utf-8")
+            req.meta['proxy'] = f"http://{proxy}"
+            spider.logger.debug(f"[+] {proxy} reload")
+            return req
+        return None
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
