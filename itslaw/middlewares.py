@@ -171,7 +171,6 @@ class ProxyMiddleware(object):
                 req.dont_filter = True
                 proxies = spider.r.zrangebyscore(spider.redis_key, spider.init_score+1, spider.max_score, start=0, num=100)
                 if not proxies:
-                    print()
                     req.meta.pop("proxy")
                     return req
                 else:
