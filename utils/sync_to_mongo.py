@@ -15,18 +15,28 @@ coll = db.wusong_judgements_000
 r = Redis()
 
 def upload():
-    docs = r.smembers("itslaw:judgement")
-    print(len(docs))
-    for doc in docs:
-        doc = str(doc, encoding="utf-8")
-        doc = json.loads(doc)
-        doc["_id"] = doc["id"]
-        doc.pop("id")
-        res = coll.insert_one(doc)
-        if not res.acknowledged:
-            print(f"[-] {res.inserted_id}")
+    while True:
+        item = r.spop("itslaw:judgement")
+        if not item:
+            break
+        try:
+            doc = str(item, encoding="utf-8")
+            doc = json.loads(doc)
+            r.sadd("itslaw:jid", doc["id"])
+            doc["_id"] = doc["id"]
+            doc.pop("id")
+
+            res = coll.update_one({"_id": doc["_id"]}, {"$set": doc}, upsert=True)
+            if res.acknowledged:
+                print(f"[+] {res.upserted_id}")
+        except Exception as e:
+            r.sadd("itslaw:judgement", item)
+            print(e)
+        
 
 def merge_id():
+    res = r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:jid")
+    print(res)
     res = r.sunionstore("itslaw:crawled", "itslaw:crawled", "itslaw:jid")
     print(res)
 

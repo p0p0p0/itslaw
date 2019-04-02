@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 import random
 from time import sleep
+from datetime import datetime
 
 from redis import Redis
 import requests
@@ -23,16 +24,17 @@ def load_from_file():
 
     print(f"[+] total {len(proxies)} hosts")
 
+
 def load_from_66ip():
     pattern = r"\d+\.\d+.\d+\.\d+:\d+"
-    url = "http://www.66ip.cn/nmtq.php?getnum=1000"
+    url = "http://www.66ip.cn/nmtq.php?getnum=100&area=1&proxytype=2&isp=1&anonymoustype=4"
     res = requests.get(url)
     for proxy in re.findall(pattern, str(res.content, encoding="gbk")):
         r.zadd("proxy:rank", {proxy: 3})
 
 
 def load_from_xici():
-    for i in range(5):
+    for i in range(1):
         url = f"https://www.xicidaili.com/wt/{i+1}"
         print(url)
         headers = {
@@ -151,16 +153,20 @@ def reduce_score():
     res = r.zincrby("proxy:rank", -1, "1.10.186.167:51907")
     print(res)
 
-def count(i):
-    print(f"[{i:2}] |", end="")
+def count():
+    ret = 0
+    print(f"{datetime.now().isoformat(timespec='seconds')} |", end="")
     for i in range(1, 6):
         res = r.zcount("proxy:rank", i, i)
-        print(f"{i}: {res:4}", end="|")
+        print(f"{i}♥: {res:4}", end="|")
+        if i == 3:
+            ret=res
     print()
+    return ret
 
 
 def remove_disqualified():
-    res = r.zremrangebyscore("proxy:rank", 0, 0)
+    res = r.zremrangebyscore("proxy:rank", 0, 1)
 
 
 def init():
@@ -171,13 +177,15 @@ def init():
 if __name__ == "__main__":
     funcs = [load_from_66ip, load_from_xici, load_from_kuaidaili, load_from_5u, load_from_iphai]
     while True:
-        for i in range(30):
+        for i in range(5):
             remove_disqualified()
-            count(i)
+            c = count()
+            if c < 10:
+                for func in funcs[:1]:
+                    func()
             sleep(60)
-        for func in funcs:
+        for func in funcs[:1]:
             func()
-        
 
     # load_from_file()
     # remove_disqualified()
