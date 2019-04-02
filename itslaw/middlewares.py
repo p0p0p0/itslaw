@@ -5,6 +5,7 @@
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 import base64
+import random
 
 from scrapy import signals
 from twisted.web._newclient import ResponseNeverReceived
@@ -129,18 +130,8 @@ class ProxyMiddleware(object):
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
-        if not request.meta.get("proxy", None):
-            proxy = spider.r.spop(f"proxy:{spider.proxy_pool}")
-            proxy = str(proxy, encoding="utf-8")
-            request.meta['proxy'] = f"http://{proxy}"
-            spider.logger.debug(f"[+] {proxy} load")
 
-
-        # request.meta["proxy"] = "http://http-dyn.abuyun.com:9020"
-        # request.dont_filter = True
-        # request.headers["Proxy-Authorization"] = "Basic " + base64.urlsafe_b64encode(bytes(("H1Y61OO5H85W1EXD" + ":" + "5BF54645231283E0"), "ascii")).decode("utf8")
-        # return request
-        
+        return None
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
@@ -149,11 +140,8 @@ class ProxyMiddleware(object):
         # - return a Response object
         # - return a Request object
         # - or raise IgnoreRequest
-        proxy = request.meta["proxy"]
-        spider.r.sadd(f"proxy:{spider.proxy_save}", proxy[7:])
-        spider.logger.debug(f"[+] {proxy[7:]} work")
+        
         return response
-
 
     def process_exception(self, request, exception, spider):
         # Called when a download handler or a process_request()
@@ -165,12 +153,11 @@ class ProxyMiddleware(object):
         # - return a Request object: stops process_exception() chain
         req = request.copy()
         req.dont_filter = True
-        proxy = spider.r.spop(f"proxy:{spider.proxy_pool}")
-        proxy = str(proxy, encoding="utf-8")
+        proxies = spider.r.zrangebyscore(spider.redis_key, spider.init_score+1, spider.max_score, start=0, num=100)
+        proxy = str(random.choice(proxies), encoding="utf-8")
         req.meta['proxy'] = f"http://{proxy}"
         spider.logger.debug(f"[+] {proxy} reload")
         return req
-        # return None
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)

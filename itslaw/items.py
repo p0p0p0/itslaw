@@ -12,3 +12,8 @@ class JudgementItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     id = scrapy.Field()
+
+class CaseItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
+    item = scrapy.Field()

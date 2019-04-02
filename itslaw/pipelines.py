@@ -11,14 +11,18 @@ from scrapy.conf import settings
 
 
 class ItslawPipeline(object):
-    def __init__(self):
-        self.pool = ConnectionPool(host=settings["REDIS_HOST"], port=settings["REDIS_PORT"], decode_responses=True, db=0)
-        self.r = Redis(connection_pool=self.pool)
-
     def process_item(self, item, spider):
         doc = item["id"]
-        if not self.r.sismember("itslaw:start", doc) or not self.r.sismember("itslaw:crawled", doc):
-            res = self.r.sadd("itslaw:id", doc)
+        if not spider.r.sismember("itslaw:start", doc) or not spider.r.sismember("itslaw:crawled", doc):
+            res = spider.r.sadd("itslaw:id", doc)
             if 1 == res:
                 spider.log(f"[+] {doc}")
+        return item
+
+class CasePipeline(object):
+    def process_item(self, item, spider):
+        fullJudgement = item["item"]
+        jid = fullJudgement["id"]
+        spider.r.sadd("itslaw:jid", jid)
+        spider.r.sadd("itslaw:judgement", json.dumps(fullJudgement, ensure_ascii=False))
         return item
