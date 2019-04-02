@@ -57,7 +57,7 @@ class CaseSpider(scrapy.Spider):
                 "judgementId": judgementId,
             }
             url = self.base_url + urlencode(parameters)
-            if not proxies:
+            if 10 > len(proxies):
                 yield Request(url=url, meta={"retry_time": 0})
             else:    
                 proxy = str(random.choice(proxies), encoding="utf-8")
