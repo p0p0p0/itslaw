@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from urllib.parse import urlencode
-from time import time
+from time import time, sleep
 import base64
 import random
 
@@ -51,7 +51,7 @@ class CaseSpider(scrapy.Spider):
             proxy = str(random.choice(proxies), encoding="utf-8")
             proxy = f"http://{proxy}"
             doc = self.r.srandmember("itslaw:id")
-            if self.r.sismember("itslaw:jid", doc):
+            if self.r.sismember("itslaw:jid", doc) or self.r.sismember("itslaw:failed", doc):
                 continue
             timestamp = str(int(time()*1000))
             judgementId = str(doc, encoding="utf-8")
@@ -64,13 +64,16 @@ class CaseSpider(scrapy.Spider):
             yield Request(url=url, meta={"proxy": proxy})
 
     def parse(self, response):
+        jid = response.url.split("=")[-1]
         res = json.loads(response.body_as_unicode())
         code = res["result"]["code"]
         message = res["result"]["message"]
         
+        # save id to redis
         if 0 != code:
             error_essage = res["result"]["errorMessage"]
             print(message, error_essage, res)
+            self.r.sadd("itslaw:failed", jid)
             return
         
         data = res["data"]
