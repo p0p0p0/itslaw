@@ -157,7 +157,7 @@ class ProxyMiddleware(object):
         # - return None: continue processing this exception
         # - return a Response object: stops process_exception() chain
         # - return a Request object: stops process_exception() chain
-        if isinstance(exception, (TimeoutError, TunnelError, ConnectError, ResponseFailed)):
+        # if isinstance(exception, (TimeoutError, TunnelError, ConnectError, ResponseFailed)):
         #     old = request.meta.get("proxy", None)
         #     if None == old:
         #         req = request.copy()
@@ -165,7 +165,7 @@ class ProxyMiddleware(object):
         #         return req
         #     retry_time = request.meta.get("retry_time", 0)
         #     if retry_time > 2:
-                raise IgnoreRequest(request.url)
+        #        raise IgnoreRequest(request.url)
         #     else:
         #         req = request.copy()
         #         req.dont_filter = True
@@ -182,6 +182,10 @@ class ProxyMiddleware(object):
         #             spider.logger.debug(f"[+] Request: {request.url}")
         #             spider.logger.debug(f"[+] {proxy} reload")
         #             return req
+
+        if isinstance(exception, (TimeoutError, TunnelError, ConnectError, ResponseFailed)):
+            spider.logger.debug(f"[-] Exception: {type(exception)}")
+            raise IgnoreRequest(request.url)
         return None
 
     def spider_opened(self, spider):
