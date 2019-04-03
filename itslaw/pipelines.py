@@ -25,4 +25,5 @@ class CasePipeline(object):
         jid = fullJudgement["id"]
         spider.r.sadd("itslaw:jid", jid)
         spider.r.sadd("itslaw:judgement", json.dumps(fullJudgement, ensure_ascii=False))
+        spider.logger.debug(f"[+] {jid} saved.")
         return item
