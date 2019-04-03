@@ -158,30 +158,30 @@ class ProxyMiddleware(object):
         # - return a Response object: stops process_exception() chain
         # - return a Request object: stops process_exception() chain
         if isinstance(exception, (TimeoutError, TunnelError, ConnectError, ResponseFailed)):
-            old = request.meta.get("proxy", None)
-            if None == old:
-                req = request.copy()
-                req.dont_filter = True
-                return req
-            retry_time = request.meta.get("retry_time", 0)
-            if retry_time > 2:
+        #     old = request.meta.get("proxy", None)
+        #     if None == old:
+        #         req = request.copy()
+        #         req.dont_filter = True
+        #         return req
+        #     retry_time = request.meta.get("retry_time", 0)
+        #     if retry_time > 2:
                 raise IgnoreRequest(request.url)
-            else:
-                req = request.copy()
-                req.dont_filter = True
-                proxies = spider.r.zrangebyscore(spider.redis_key, spider.init_score+1, spider.max_score, start=0, num=100)
-                if not proxies:
-                    req.meta.pop("proxy")
-                    return req
-                else:
-                    retry_time += 1
-                    proxy = str(random.choice(proxies), encoding="utf-8")
-                    req.meta['proxy'] = f"http://{proxy}"
-                    req.meta["retry_time"] = retry_time
-                    spider.logger.debug(f"[+] Exception: {type(exception)}, retry_time: {retry_time}")
-                    spider.logger.debug(f"[+] Request: {request.url}")
-                    spider.logger.debug(f"[+] {proxy} reload")
-                    return req
+        #     else:
+        #         req = request.copy()
+        #         req.dont_filter = True
+        #         proxies = spider.r.zrangebyscore(spider.redis_key, spider.init_score+1, spider.max_score, start=0, num=100)
+        #         if not proxies:
+        #             req.meta.pop("proxy")
+        #             return req
+        #         else:
+        #             retry_time += 1
+        #             proxy = str(random.choice(proxies), encoding="utf-8")
+        #             req.meta['proxy'] = f"http://{proxy}"
+        #             req.meta["retry_time"] = retry_time
+        #             spider.logger.debug(f"[+] Exception: {type(exception)}, retry_time: {retry_time}")
+        #             spider.logger.debug(f"[+] Request: {request.url}")
+        #             spider.logger.debug(f"[+] {proxy} reload")
+        #             return req
         return None
 
     def spider_opened(self, spider):
