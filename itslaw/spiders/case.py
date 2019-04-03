@@ -44,6 +44,8 @@ class CaseSpider(scrapy.Spider):
     r = Redis(connection_pool=pool)
 
     def start_requests(self):
+        left = self.r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:jid")
+        self.logger.info(f"[*] left {left} cases to crawl.")
         while True:
             proxies = self.r.zrangebyscore(self.redis_key, self.init_score+1, self.max_score, start=0, num=100)
             docs = self.r.srandmember("itslaw:id", number=1000)
