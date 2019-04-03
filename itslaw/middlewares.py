@@ -164,7 +164,7 @@ class ProxyMiddleware(object):
                 req.dont_filter = True
                 return req
             retry_time = request.meta.get("retry_time", 0)
-            if retry_time > 5:
+            if retry_time > 2:
                 raise IgnoreRequest(request.url)
             else:
                 req = request.copy()

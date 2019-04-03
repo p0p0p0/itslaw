@@ -21,7 +21,7 @@ class CaseSpider(scrapy.Spider):
     base_url ="https://www.itslaw.com/api/v1/detail?" 
     custom_settings = {
         "LOG_LEVEL": "DEBUG",
-        "DOWNLOAD_TIMEOUT": 5,
+        "DOWNLOAD_TIMEOUT": 10,
         # "DOWNLOAD_DELAY": 0.5,
         "DOWNLOADER_MIDDLEWARES": {
             'itslaw.middlewares.ProxyMiddleware': 543,
