@@ -23,6 +23,20 @@ def pull(count):
         except Exception as e:
             r2.sadd("itslaw:id", item)
             print(e)
+            break
+
+def push():
+    r1 = redis.Redis()
+    r2 = redis.Redis(host="192.168.1.3")
+    while True:
+        item = r1.spop("itslaw:judgement")
+        try:
+            r2.sadd("itslaw:judgement", item)
+        except Exception as e:
+            r1.sadd("itslaw:judgement", item)
+            print(e)
+            break
+
 
 if __name__ == "__main__":
-    pull(100000)
+    push()
