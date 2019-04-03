@@ -48,11 +48,12 @@ class CaseSpider(scrapy.Spider):
             proxies = self.r.zrangebyscore(self.redis_key, self.init_score+1, self.max_score, start=0, num=100)
             docs = self.r.srandmember("itslaw:id", number=1000)
             for doc in docs:
-                if self.r.sismember("itslaw:jid", doc) or self.r.sismember("itslaw:failed", doc):
-                    continue
                 timestamp = str(int(time()*1000))
                 judgementId = str(doc, encoding="utf-8")
-                
+                if self.r.sismember("itslaw:jid", doc) or self.r.sismember("itslaw:failed", doc):
+                    self.logger.debug(f"{judgementId} crawled.")
+                    continue
+
                 parameters = {
                     "timestamp": timestamp,
                     "judgementId": judgementId,
@@ -63,6 +64,7 @@ class CaseSpider(scrapy.Spider):
                 else:    
                     proxy = str(random.choice(proxies), encoding="utf-8")
                     proxy = f"http://{proxy}"
+                    self.logger.debug(f"[+] crawl {judgementId}")
                     yield Request(url=url, meta={"proxy": proxy, "retry_time": 0})
 
     def parse(self, response):
