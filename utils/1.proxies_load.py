@@ -42,7 +42,7 @@ def load_from_66iphtml():
         else:
             index = str(i)
         url = f"http://www.66ip.cn/{index}.html"
-        print(url)
+        # print(url)
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3745.4 Safari/537.36",
             "Referer": "https://www.xicidaili.com/wt/"
@@ -71,7 +71,7 @@ def load_from_66iphtml():
 def load_from_xici():
     for i in range(1):
         url = f"https://www.xicidaili.com/wt/{i+1}"
-        print(url)
+        # print(url)
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3745.4 Safari/537.36",
             "Referer": "https://www.xicidaili.com/wt/"
@@ -100,7 +100,7 @@ def load_from_xici():
 def load_from_kuaidaili():
     for i in range(10):
         url = f"https://www.kuaidaili.com/free/inha/{i+1}/"
-        print(url)
+        # print(url)
         while True:
             try:
                 res = requests.get(url)
@@ -124,7 +124,7 @@ def load_from_kuaidaili():
 
 def load_from_5u():
     url = "http://www.data5u.com/"
-    print(url)
+    # print(url)
     headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3745.4 Safari/537.36",
             "Referer": "http://www.data5u.com/"
@@ -151,10 +151,10 @@ def load_from_5u():
 
 
 def load_from_iphai():
-    items = ["ng", "np"]
-    for each in items:
+    items = ["ng", "np", "wg", "wp"]
+    for each in items[:1]:
         url = f"http://www.iphai.com/free/{each}"
-        print(url)
+        # print(url)
         headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3745.4 Safari/537.36",
                 "Referer": "http://www.data5u.com/"
@@ -228,13 +228,11 @@ if __name__ == "__main__":
             remove_disqualified()
             c = count()
             if c < 10:
-                for func in funcs[:]:
+                for func in funcs:
                     func()
             sleep(60)
-        # for func in funcs[:1]:
-        #     func()
+        for func in funcs:
+            func()
 
     # load_from_file()
     # remove_disqualified()
-
-
