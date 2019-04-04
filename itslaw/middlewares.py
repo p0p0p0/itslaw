@@ -163,7 +163,7 @@ class ProxyMiddleware(object):
             raise IgnoreRequest(request.url)
         elif isinstance(exception, (TunnelError,)):
             if "To Many Requests" in str(exception):
-                spider.logger.info("To Many Requests")
+                spider.logger.debug("To Many Requests")
             elif "Payment Required" in str(exception):
                 spider.logger.info("[*] Tunnel expired")
                 spider.crawler.engine.close_spider(spider, "Tunnel expired, Please renew")
