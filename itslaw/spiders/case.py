@@ -56,7 +56,7 @@ class CaseSpider(scrapy.Spider):
                     "judgementId": judgementId,
                 }
                 url = self.base_url + urlencode(parameters)
-                if not proxies:
+                if 10 > len(proxies):
                     yield Request(url=url)
                 else:
                     self.logger.debug(f"[+] crawl {judgementId}")
