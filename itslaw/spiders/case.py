@@ -46,7 +46,7 @@ class CaseSpider(scrapy.Spider):
         while True:
             left = self.r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:jid")
             self.logger.info(f"[*] left {left} cases to crawl.")
-            docs = self.r.srandmember("itslaw:id", number=100)
+            docs = self.r.srandmember("itslaw:id", number=10000)
             for doc in docs:
                 judgementId = str(doc, encoding="utf-8")
                 parameters = {
@@ -55,8 +55,6 @@ class CaseSpider(scrapy.Spider):
                 }
                 url = self.base_url + urlencode(parameters)
                 yield Request(url=url)    
-            break            
-
 
     def parse(self, response):
         jid = response.url.split("=")[-1]
