@@ -137,7 +137,8 @@ class ProxyMiddleware(object):
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
 
-        return None
+        request.meta["proxy"] = spider.proxy_server
+        request.headers["Proxy-Authorization"] = spider.proxy_auth
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
@@ -182,10 +183,9 @@ class ProxyMiddleware(object):
         #             spider.logger.debug(f"[+] Request: {request.url}")
         #             spider.logger.debug(f"[+] {proxy} reload")
         #             return req
-
-        if isinstance(exception, (TimeoutError, TunnelError, ConnectError, ResponseFailed)):
-            spider.logger.debug(f"[-] Exception: {type(exception)}")
-            raise IgnoreRequest(request.url)
+        # if isinstance(exception, (ConnectionRefusedError, )):
+        #     spider.logger.debug(f"[-] Exception: {type(exception)}")
+        #     raise IgnoreRequest(request.url)
         return None
 
     def spider_opened(self, spider):

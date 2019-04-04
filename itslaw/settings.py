@@ -108,3 +108,8 @@ LOG_LEVEL = "INFO"
 REDIS_KEY = "proxy:rank"
 MAX_SCORE = 5
 INIT_SCORE = 3
+
+# abuyun proxy
+PROXY_SERVER = "http://http-dyn.abuyun.com:9020"
+PROXY_USER = "H1Y61OO5H85W1EXD"
+PROXY_PASS = "5BF54645231283E0"

@@ -21,7 +21,7 @@ class CaseSpider(scrapy.Spider):
     base_url ="https://www.itslaw.com/api/v1/detail?" 
     custom_settings = {
         "LOG_LEVEL": "DEBUG",
-        "DOWNLOAD_TIMEOUT": 5,
+        # "DOWNLOAD_TIMEOUT": 5,
         # "DOWNLOAD_DELAY": 0.5,
         "DOWNLOADER_MIDDLEWARES": {
             'itslaw.middlewares.ProxyMiddleware': 543,
@@ -37,9 +37,10 @@ class CaseSpider(scrapy.Spider):
     settings = get_project_settings()
     redis_host = settings.get("REDIS_HOST")
     redis_port = settings.get("REDIS_PORT")
-    redis_key = settings.get("REDIS_KEY")
-    max_score = settings.get("MAX_SCORE")
-    init_score = settings.get("INIT_SCORE")
+    proxy_server = settings.get("PROXY_SERVER")
+    proxy_user = settings.get("PROXY_USER")
+    proxy_pass = settings.get("PROXY_PASS")
+    proxy_auth = "Basic " + base64.urlsafe_b64encode(bytes((proxy_user + ":" + proxy_pass), "ascii")).decode("utf8")
     pool = ConnectionPool(host=redis_host, port=redis_port, db=0)
     r = Redis(connection_pool=pool)
 
@@ -47,8 +48,7 @@ class CaseSpider(scrapy.Spider):
         while True:
             left = self.r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:jid")
             self.logger.info(f"[*] left {left} cases to crawl.")
-            proxies = self.r.zrangebyscore(self.redis_key, self.init_score+1, self.max_score, start=0, num=100)
-            docs = self.r.srandmember("itslaw:id", number=1000)
+            docs = self.r.srandmember("itslaw:id", number=10000)
             for doc in docs:
                 judgementId = str(doc, encoding="utf-8")
                 parameters = {
@@ -56,11 +56,8 @@ class CaseSpider(scrapy.Spider):
                     "judgementId": judgementId,
                 }
                 url = self.base_url + urlencode(parameters)
-                if 10 > len(proxies):
-                    yield Request(url=url)
-                else:
-                    self.logger.debug(f"[+] crawl {judgementId}")
-                    yield Request(url=url, meta={"proxy": "http://" + str(random.choice(proxies), encoding="utf-8")})
+                yield Request(url=url)                
+            break
 
     def parse(self, response):
         jid = response.url.split("=")[-1]
@@ -68,7 +65,7 @@ class CaseSpider(scrapy.Spider):
         code = res["result"]["code"]
         message = res["result"]["message"]
         
-        # save id to redis
+        # save failed id to redis
         if 0 != code:
             error_essage = res["result"]["errorMessage"]
             print(message, error_essage, res)
