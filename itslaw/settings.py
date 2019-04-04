@@ -99,11 +99,10 @@ COOKIES_ENABLED = False
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
-# RETRY_ENABLED = False
+RETRY_ENABLED = False
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 LOG_LEVEL = "INFO"
-# DOWNLOAD_TIMEOUT = 1
 
 # abuyun proxy
 PROXY_SERVER = "http://http-dyn.abuyun.com:9020"

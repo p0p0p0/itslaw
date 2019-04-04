@@ -9,7 +9,7 @@ import random
 from time import sleep
 
 from scrapy import signals
-from scrapy.exceptions import IgnoreRequest
+from scrapy.exceptions import IgnoreRequest, CloseSpider
 from twisted.web._newclient import ResponseNeverReceived
 from twisted.internet.error import TimeoutError, DNSLookupError, ConnectionLost, TCPTimedOutError
 from twisted.internet.error import ConnectionRefusedError, ConnectionDone, ConnectError
@@ -158,8 +158,12 @@ class ProxyMiddleware(object):
         # - return None: continue processing this exception
         # - return a Response object: stops process_exception() chain
         # - return a Request object: stops process_exception() chain
-        if isinstance(exception, (ResponseNeverReceived, ConnectionRefusedError, TimeoutError, TunnelError)):
+        if isinstance(exception, (ResponseNeverReceived, ConnectionRefusedError, TimeoutError)):
             spider.logger.debug(f"[-] Exception: {type(exception)}")
+            raise IgnoreRequest(request.url)
+        elif isinstance(exception, (TunnelError,)):
+            spider.logger.info("[*] Tunnel expired")
+            spider.crawler.engine.close_spider(spider, "Tunnel expired, Please renew")
             raise IgnoreRequest(request.url)
         return None
 
