@@ -35,6 +35,38 @@ def load_from_66ip():
         if None == score:
             r.zadd("proxy:rank", {proxy: 3})
 
+def load_from_66iphtml():
+    for i in range(10):
+        if i == 0:
+            index = "index"
+        else:
+            index = str(i)
+        url = f"http://www.66ip.cn/{index}.html"
+        print(url)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3745.4 Safari/537.36",
+            "Referer": "https://www.xicidaili.com/wt/"
+        }
+        while True:
+            try:
+                res = requests.get(url, headers=headers)
+            except Exception as e:
+                print(e)
+            else:
+                if res.status_code == 200:
+                    break
+                else:
+                    sleep(1)
+        response = Selector(text=str(res.content, encoding="gb2312"))
+        rows = response.xpath("//tr")
+        for row in rows[2:]:
+            ip = row.xpath(".//td[1]/text()").extract_first()
+            port = row.xpath(".//td[2]/text()").extract_first()
+            proxy = f"{ip}:{port}"
+            score = r.zscore("proxy:rank", proxy)
+            if None == score:
+                r.zadd("proxy:rank", {proxy: 3})
+
 
 def load_from_xici():
     for i in range(1):
@@ -59,7 +91,10 @@ def load_from_xici():
         for row in rows[1:]:
             ip = row.xpath(".//td[2]/text()").extract_first()
             port = row.xpath(".//td[3]/text()").extract_first()
-            r.zadd("proxy:rank", {f"{ip}:{port}": 3})
+            proxy = f"{ip}:{port}"
+            score = r.zscore("proxy:rank", proxy)
+            if None == score:
+                r.zadd("proxy:rank", {proxy: 3})
 
 
 def load_from_kuaidaili():
@@ -81,7 +116,10 @@ def load_from_kuaidaili():
         for row in rows:
             ip = row.xpath(".//td[@data-title='IP']/text()").extract_first()
             port = row.xpath(".//td[@data-title='PORT']/text()").extract_first()
-            r.zadd("proxy:rank", {f"{ip}:{port}": 3})
+            proxy = f"{ip}:{port}"
+            score = r.zscore("proxy:rank", proxy)
+            if None == score:
+                r.zadd("proxy:rank", {proxy: 3})
 
 
 def load_from_5u():
@@ -106,7 +144,10 @@ def load_from_5u():
     for row in rows:
         ip = row.xpath(".//span[1]/li/text()").extract_first()
         port = row.xpath(".//span[2]/li/text()").extract_first()
-        r.zadd("proxy:rank", {f"{ip}:{port}": 3})
+        proxy = f"{ip}:{port}"
+        score = r.zscore("proxy:rank", proxy)
+        if None == score:
+            r.zadd("proxy:rank", {proxy: 3})
 
 
 def load_from_iphai():
@@ -133,7 +174,10 @@ def load_from_iphai():
         for row in rows[1:]:
             ip = row.xpath(".//td[1]/text()").extract_first().strip()
             port = row.xpath(".//td[2]/text()").extract_first().strip()
-            r.zadd("proxy:rank", {f"{ip}:{port}": 3})
+            proxy = f"{ip}:{port}"
+            score = r.zscore("proxy:rank", proxy)
+            if None == score:
+                r.zadd("proxy:rank", {proxy: 3})
 
 
 def load_from_redis():
@@ -178,17 +222,17 @@ def init():
         r.zincrby("proxy:rank", 3-score, proxy)
 
 if __name__ == "__main__":
-    funcs = [load_from_66ip, load_from_xici, load_from_kuaidaili, load_from_5u, load_from_iphai]
+    funcs = [load_from_66ip, load_from_66iphtml, load_from_xici, load_from_kuaidaili, load_from_5u, load_from_iphai]
     while True:
         for i in range(5):
             remove_disqualified()
             c = count()
             if c < 10:
-                for func in funcs[:1]:
+                for func in funcs[:]:
                     func()
             sleep(60)
-        for func in funcs[:1]:
-            func()
+        # for func in funcs[:1]:
+        #     func()
 
     # load_from_file()
     # remove_disqualified()
