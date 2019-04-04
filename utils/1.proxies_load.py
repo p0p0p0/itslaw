@@ -27,7 +27,7 @@ def load_from_file():
 
 def load_from_66ip():
     pattern = r"\d+\.\d+.\d+\.\d+:\d+"
-    url = "http://www.66ip.cn/nmtq.php?getnum=100&area=1&proxytype=2&isp=1&anonymoustype=4"
+    url = "http://www.66ip.cn/nmtq.php?getnum=1000"
 
     res = requests.get(url)
     for proxy in re.findall(pattern, str(res.content, encoding="gbk")):
