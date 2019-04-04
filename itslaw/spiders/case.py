@@ -20,9 +20,9 @@ class CaseSpider(scrapy.Spider):
     allowed_domains = ['www.itslaw.com']
     base_url ="https://www.itslaw.com/api/v1/detail?" 
     custom_settings = {
-        "LOG_LEVEL": "DEBUG",
-        # "DOWNLOAD_TIMEOUT": 5,
-        # "DOWNLOAD_DELAY": 0.5,
+        # "LOG_LEVEL": "DEBUG",
+        "DOWNLOAD_TIMEOUT": 5,
+        "DOWNLOAD_DELAY": 0.1,
         "DOWNLOADER_MIDDLEWARES": {
             'itslaw.middlewares.ProxyMiddleware': 543,
         },
@@ -57,7 +57,7 @@ class CaseSpider(scrapy.Spider):
                 }
                 url = self.base_url + urlencode(parameters)
                 yield Request(url=url)                
-            break
+
 
     def parse(self, response):
         jid = response.url.split("=")[-1]
