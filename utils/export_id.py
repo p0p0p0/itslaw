@@ -31,4 +31,4 @@ def load():
 
 
 if __name__ == "__main__":
-    dump(500000)
+    dump(1000000)

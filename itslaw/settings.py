@@ -81,9 +81,9 @@ COOKIES_ENABLED = False
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
-AUTOTHROTTLE_ENABLED = True
+# AUTOTHROTTLE_ENABLED = True
 # The initial download delay
-AUTOTHROTTLE_START_DELAY = 0.1
+# AUTOTHROTTLE_START_DELAY = 0.2
 # The maximum download delay to be set in case of high latencies
 #AUTOTHROTTLE_MAX_DELAY = 60
 # The average number of requests Scrapy should be sending in parallel to
@@ -94,7 +94,7 @@ AUTOTHROTTLE_START_DELAY = 0.1
 
 # Enable and configure HTTP caching (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
-#HTTPCACHE_ENABLED = True
+# HTTPCACHE_ENABLED = True
 #HTTPCACHE_EXPIRATION_SECS = 0
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
@@ -107,5 +107,5 @@ LOG_LEVEL = "INFO"
 
 # abuyun proxy
 PROXY_SERVER = "http://http-dyn.abuyun.com:9020"
-PROXY_USER = "H1Y61OO5H85W1EXD"
-PROXY_PASS = "5BF54645231283E0"
+PROXY_USER = "HQ5867J9S14TT6WD"
+PROXY_PASS = "ECB6CB605C5B3169"

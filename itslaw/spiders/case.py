@@ -7,13 +7,11 @@ import random
 
 import scrapy
 from scrapy import Request
-# from scrapy.conf import settings
 from scrapy.utils.project import get_project_settings
 from scrapy.exceptions import CloseSpider
 from itslaw.items import JudgementItem, CaseItem
 from redis import Redis, ConnectionPool
-from fake_useragent import UserAgent
-ua = UserAgent()
+
 
 class CaseSpider(scrapy.Spider):
     name = 'case'
@@ -22,12 +20,12 @@ class CaseSpider(scrapy.Spider):
     custom_settings = {
         # "LOG_LEVEL": "DEBUG",
         "DOWNLOAD_TIMEOUT": 5,
-        "DOWNLOAD_DELAY": 0.1,
+        # "DOWNLOAD_DELAY": 0.2,
         "DOWNLOADER_MIDDLEWARES": {
             'itslaw.middlewares.ProxyMiddleware': 543,
         },
         "DEFAULT_REQUEST_HEADERS": {
-            "User-Agent": ua.random, 
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3724.8 Safari/537.36", 
             "Referer": "https://www.itslaw.com/search?searchMode=judgements&sortType=1&conditions=trialYear%2B1994%2B7%2B1994", 
         },
         "ITEM_PIPELINES": {
@@ -68,7 +66,6 @@ class CaseSpider(scrapy.Spider):
         # save failed id to redis
         if 0 != code:
             error_essage = res["result"]["errorMessage"]
-            print(message, error_essage, res)
             self.r.sadd("itslaw:failed", jid)
             return
         
