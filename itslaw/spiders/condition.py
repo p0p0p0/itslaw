@@ -64,10 +64,13 @@ class ConditionSpider(scrapy.Spider):
         if 0 != code:
             error_essage = res["result"]["errorMessage"]
             self.logger.debug(message + ": " + error_essage)
+            self.r.sadd("conditions:error", response.url)   
+            return
 
         try:
             data = res["data"]
         except Exception as e:
+            self.r.sadd("conditions:error", response.url)
             self.logger.debug(e)
             yield Request(url=response.url, dont_filter=True)
             return
