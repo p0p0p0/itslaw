@@ -13,11 +13,12 @@ from scrapy.conf import settings
 class ItslawPipeline(object):
     def process_item(self, item, spider):
         doc = item["id"]
-        if not spider.r.sismember("itslaw:start", doc) or not spider.r.sismember("itslaw:crawled", doc):
+        if not spider.r.sismember("itslaw:jid", doc) or not spider.r.sismember("itslaw:crawled", doc):
             res = spider.r.sadd("itslaw:id", doc)
             if 1 == res:
-                spider.log(f"[+] {doc}")
+                spider.logger.debug(f"[+] {doc}")
         return item
+
 
 class CasePipeline(object):
     def process_item(self, item, spider):
