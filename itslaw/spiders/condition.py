@@ -48,7 +48,7 @@ class ConditionSpider(scrapy.Spider):
   
         while True:
             left = self.r.sdiffstore("conditions:count1", "conditions:count1", "conditions:crawled")
-            self.logger.info(f"[*] left {left} cases to crawl.")
+            self.logger.info(f"[*] left {left} condition combinations to crawl.")
             urls = self.r.srandmember("conditions:count1", number=20000)
             if not urls:
                 break

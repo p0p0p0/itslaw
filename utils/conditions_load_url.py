@@ -1,6 +1,9 @@
 from pathlib import Path
 from urllib.parse import urlunparse, unquote
 from datetime import datetime
+from collections import Counter
+from pprint import pprint
+
 import pymongo
 from redis import Redis
 
@@ -36,6 +39,20 @@ def load_to_redis(path):
             count, url = line.strip().split()
             r.sadd("conditions:count1", url)
 
+def count(path):
+    if not path:
+        raise ValueError("Path needed")
+    ret = 0
+    with open(path, mode="r", encoding="utf-8") as f:
+        for line in f:
+            count, url = line.strip().split()
+            count = int(count)
+            if count % 20 == 0:
+                ret += count // 20 + 1
+            else:
+                ret += count //20 +2
+
+        print(ret)
 
 if __name__ == "__main__":
-    load_to_redis(Path("../docs/url001.txt"))
+    count(Path("../docs/url.merged.txt"))
