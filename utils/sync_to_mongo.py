@@ -40,5 +40,19 @@ def merge_id():
     res = r.sunionstore("itslaw:crawled", "itslaw:crawled", "itslaw:jid")
     print(res)
 
+def dump():
+    while True:
+        item = r.spop("itslaw:judgement")
+        if not item:
+            break
+        try:
+            doc = json.loads(str(item, encoding="utf-8"))
+            with open("docs.txt", mode="a", encoding="utf-8") as f:
+                f.write(json.dumps(doc, ensure_ascii=False) + "\n")
+        except Exception as e:
+            r.sadd("itslaw:judgement", item)
+            print(e)
+            break
+        
 if __name__ == "__main__":
-    merge_id()
+    dump()
