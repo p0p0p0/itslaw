@@ -60,10 +60,11 @@ class ConditionSpider(scrapy.Spider):
         res = json.loads(response.body_as_unicode())       
         code = res["result"]["code"]
         message = res["result"]["message"]
+        self.logger.debug(message)
         
         if 0 != code:
             error_essage = res["result"]["errorMessage"]
-            self.logger.debug(message + ": " + error_essage)
+            self.logger.debug(error_essage)
             self.r.sadd("conditions:error", response.url)   
             return
 
