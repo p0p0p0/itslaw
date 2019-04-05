@@ -53,6 +53,20 @@ def dump():
             r.sadd("itslaw:judgement", item)
             print(e)
             break
-        
+
+def load():
+    with open("docs.txt", mode="r", encoding="utf-8") as f:
+        for line in f:
+            doc = json.loads(line.strip())
+            doc["_id"] = doc["id"]
+            doc.pop("id")
+            try:
+                res = coll.update_one({"_id": doc["_id"]}, {"$set": doc}, upsert=True)
+                if res.acknowledged:
+                    print(f"[+] {res.upserted_id}")
+            except Exception as e:
+                print(e)
+            
+
 if __name__ == "__main__":
-    dump()
+    load()
