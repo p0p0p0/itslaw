@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 from time import time, sleep
 import base64
 import random
+import os
 
 import scrapy
 from scrapy import Request
@@ -16,7 +17,7 @@ from redis import Redis, ConnectionPool
 class CaseSpider(scrapy.Spider):
     name = 'case'
     allowed_domains = ['www.itslaw.com']
-    base_url ="https://www.itslaw.com/api/v1/detail?" 
+    # base_url = "https://m.itslaw.com/mobile/judgements/judgement/"
     custom_settings = {
         # "LOG_LEVEL": "DEBUG",
         "DOWNLOAD_TIMEOUT": 5,
@@ -25,8 +26,8 @@ class CaseSpider(scrapy.Spider):
             'itslaw.middlewares.ProxyMiddleware': 543,
         },
         "DEFAULT_REQUEST_HEADERS": {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3724.8 Safari/537.36", 
-            "Referer": "https://www.itslaw.com/search?searchMode=judgements&sortType=1&conditions=trialYear%2B1994%2B7%2B1994", 
+            "User-Agent": "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1", 
+            "Referer": "https://m.itslaw.com", 
         },
         "ITEM_PIPELINES": {
             'itslaw.pipelines.CasePipeline': 300,
@@ -41,20 +42,19 @@ class CaseSpider(scrapy.Spider):
     proxy_auth = "Basic " + base64.urlsafe_b64encode(bytes((proxy_user + ":" + proxy_pass), "ascii")).decode("utf8")
     pool = ConnectionPool(host=redis_host, port=redis_port, db=0)
     r = Redis(connection_pool=pool)
+    count = os.getenv("COUNT", default="")
+    key = f'itslaw:id{count}'
+    # $env:COUNT=""
 
     def start_requests(self):
         while True:
-            left = self.r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:jid")
-            self.logger.info(f"[*] left {left} cases to crawl.")
-            docs = self.r.srandmember("itslaw:id", number=10000)
+            left = self.r.sdiffstore(self.key, self.key, "itslaw:jid")
+            self.logger.info(f"[*] {self.count} left {left} cases to crawl.")
+            docs = self.r.srandmember(self.key, number=10000)
             for doc in docs:
                 judgementId = str(doc, encoding="utf-8")
-                parameters = {
-                    "timestamp": int(time()*1000),
-                    "judgementId": judgementId,
-                }
-                url = self.base_url + urlencode(parameters)
-                yield Request(url=url)    
+                url = f"https://m.itslaw.com/mobile/judgements/judgement/{judgementId}"
+                yield Request(url=url)
 
     def parse(self, response):
         jid = response.url.split("=")[-1]

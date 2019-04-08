@@ -37,7 +37,11 @@ def load_to_redis(path):
     with open(path, mode="r", encoding="utf-8") as f:
         for line in f:
             count, url = line.strip().split()
-            r.sadd("conditions:count1", url)
+            for i in range(0, 400, 20):
+                p = url.replace("startIndex=0", f"startIndex={i}")
+                p = p.replace("sortType=1", "sortType=2")
+                r.sadd(f"conditions:page1", p)
+
 
 def count(path):
     if not path:
@@ -51,8 +55,8 @@ def count(path):
                 ret += count // 20 + 1
             else:
                 ret += count //20 +2
-
         print(ret)
 
+
 if __name__ == "__main__":
-    count(Path("../docs/url.merged.txt"))
+    load_to_redis(Path("../docs/write.txt"))

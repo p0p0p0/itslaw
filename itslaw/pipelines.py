@@ -11,10 +11,10 @@ from scrapy.conf import settings
 from scrapy.exceptions import DropItem
 
 
-class ItslawPipeline(object):
+class ConditionPipeline(object):
     def process_item(self, item, spider):
         doc = item["id"]
-        if not spider.r.sismember("itslaw:jid", doc) and not spider.r.sismember("itslaw:crawled", doc):
+        if not spider.r.sismember("itslaw:crawled", doc):
             res = spider.r.sadd("itslaw:id", doc)
             if 1 == res:
                 spider.logger.debug(f"[+] {doc}")
