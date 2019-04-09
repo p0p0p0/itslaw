@@ -106,9 +106,10 @@ class ItslawDownloaderMiddleware(object):
         # - return None: continue processing this exception
         # - return a Response object: stops process_exception() chain
         # - return a Request object: stops process_exception() chain
-        req = request.copy()
-        req.dont_filter = True
-        return req
+        if isinstance(exception, (ResponseNeverReceived, ConnectionRefusedError, TimeoutError)):
+            spider.logger.debug(f"[-] Exception: {type(exception)}")
+            raise IgnoreRequest(request.url)
+        return None
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)

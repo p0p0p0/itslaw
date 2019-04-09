@@ -1,17 +1,18 @@
 """
 sync to mongodb first, then merge redis judgement id data
 """
-
 import json
+from time import sleep
+from datetime import datetime
 
 from redis import Redis
 import pymongo
 from bson import ObjectId
 
 
-client = pymongo.MongoClient(port=27018)
-db = client.itslaw
-coll = db.judgements
+client = pymongo.MongoClient(port=27017)
+db = client.atersoft
+coll = db.wusong_judgements_003
 
 r = Redis()
 
@@ -19,29 +20,35 @@ def upload():
     while True:
         item = r.spop("itslaw:judgement")
         if not item:
-            break
+            sleep(60*10)
+            now = datetime.now().isoformat(timespec="seconds")
+            res = r.scard("itslaw:judgement")
+            print(f"[{now}] {res} to sync...")
+            continue
         try:
             doc = str(item, encoding="utf-8")
             doc = json.loads(doc)
-            r.sadd("itslaw:jid", doc["id"])
+            # r.sadd("itslaw:jid", doc["id"])
             doc["_id"] = doc["id"]
             doc.pop("id")
 
-            res = coll.update_one({"_id": doc["_id"]}, {"$set": doc}, upsert=True)
-            if res.acknowledged:
-                print(f"[+] {res.upserted_id}")
+            coll.update_one({"_id": doc["_id"]}, {"$set": doc}, upsert=True)
+            # res = coll.update_one({"_id": doc["_id"]}, {"$set": doc}, upsert=True)
+            # if res.acknowledged:
+            #     print(f"[+] {res.upserted_id}")
         except Exception as e:
             r.sadd("itslaw:judgement", item)
             print(e)
         
 
 def merge_id():
-    # res = r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:jid")
-    # print(res)
+    for i in range(14):
+        res = r.sdiffstore(f"itslaw:id{i}", f"itslaw:id{i}", "itslaw:jid")
+        print(res)
     # res = r.sunionstore("itslaw:crawled", "itslaw:crawled", "itslaw:jid")
     # print(res)
-    res = r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:crawled")
-    print(res)
+    # res = r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:jid")
+    # print(res)
 
 
 def dump():
@@ -78,7 +85,7 @@ def split(count):
         # if not item:
         #     break
         # jid = str(item, encoding="utf-8")
-    r.sadd("itslaw:id13", *items)
+    r.sadd("itslaw:id1", *items)
 
 
 def remove_error():
@@ -87,7 +94,13 @@ def remove_error():
             oid = line.strip()
             res = coll.find_one_and_delete({"_id": ObjectId(oid)})
 
+def modify():
+    items = r.smembers("itslaw:failed")
+    for item in items:
+        url = str(item, encoding="utf-8")
+        jid = url.split("=")[-1]
+        r.sadd("itslaw:id", jid)
 
 if __name__ == "__main__":
-    split(1000000)
-    # dump()
+    # split(1000000)
+    upload()

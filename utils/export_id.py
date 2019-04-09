@@ -6,7 +6,7 @@ def export(collection):
     client = pymongo.MongoClient(port=27017)
     db = client.atersoft
     coll = db[collection]
-    for i, doc in enumerate(coll.find({}), start=21142884):
+    for i, doc in enumerate(coll.find({}), start=24541093):
         filename = f"{(i//100000)+1:#03}"
         jid = doc["_id"]
         if not isinstance(jid, (str,)):
@@ -15,7 +15,7 @@ def export(collection):
             jid = "ObjectId"
             doc = {"error": "id type error"}
 
-        with open("ids_crawled.dat", mode="a", encoding="utf-8") as t:
+        with open("ids_crawled2.dat", mode="a", encoding="utf-8") as t:
             t.write(jid + "\n")
         with open(f"{filename}.jl", mode="a", encoding="utf-8") as f:
             f.write(json.dumps(doc, ensure_ascii=False) + "\n")
@@ -50,5 +50,5 @@ def load():
 
 
 if __name__ == "__main__":
-    export("wusong_judgements_000")
+    export("wusong_judgements_001")
     # dump_to_txt()

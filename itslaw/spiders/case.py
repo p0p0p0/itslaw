@@ -6,6 +6,7 @@ import base64
 import random
 import os
 
+from fake_useragent import UserAgent
 import scrapy
 from scrapy import Request
 from scrapy.utils.project import get_project_settings
@@ -13,21 +14,23 @@ from scrapy.exceptions import CloseSpider
 from itslaw.items import JudgementItem, CaseItem
 from redis import Redis, ConnectionPool
 
+ua = UserAgent()
 
 class CaseSpider(scrapy.Spider):
     name = 'case'
     allowed_domains = ['www.itslaw.com']
-    # base_url = "https://m.itslaw.com/mobile/judgements/judgement/"
+    base_url = "https://www.itslaw.com/api/v1/detail?"
     custom_settings = {
         # "LOG_LEVEL": "DEBUG",
-        "DOWNLOAD_TIMEOUT": 5,
+        "DOWNLOAD_TIMEOUT": 20,
         # "DOWNLOAD_DELAY": 0.2,
         "DOWNLOADER_MIDDLEWARES": {
-            'itslaw.middlewares.ProxyMiddleware': 543,
+            # "itslaw.middlewares.ProxyMiddleware": 543,
+            "itslaw.middlewares.ItslawDownloaderMiddleware": 534
         },
         "DEFAULT_REQUEST_HEADERS": {
-            "User-Agent": "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1", 
-            "Referer": "https://m.itslaw.com", 
+            "User-Agent": ua.random, 
+            "Referer": "www.itslaw.com/search?searchMode=judgements&sortType=1&conditions=trialYear%2B1994%2B7%2B1994", 
         },
         "ITEM_PIPELINES": {
             'itslaw.pipelines.CasePipeline': 300,
@@ -50,21 +53,26 @@ class CaseSpider(scrapy.Spider):
         while True:
             left = self.r.sdiffstore(self.key, self.key, "itslaw:jid")
             self.logger.info(f"[*] {self.count} left {left} cases to crawl.")
-            docs = self.r.srandmember(self.key, number=10000)
+            docs = self.r.srandmember(self.key, number=100)
             for doc in docs:
                 judgementId = str(doc, encoding="utf-8")
-                url = f"https://m.itslaw.com/mobile/judgements/judgement/{judgementId}"
+                parameters = {
+                    "timestamp": int(time()*1000),
+                    "judgementId": judgementId,
+                }
+                url = self.base_url + urlencode(parameters)
                 yield Request(url=url)
+            break
+
+
 
     def parse(self, response):
         jid = response.url.split("=")[-1]
         res = json.loads(response.body_as_unicode())
         code = res["result"]["code"]
-        message = res["result"]["message"]
         
         # save failed id to redis
         if 0 != code:
-            error_essage = res["result"]["errorMessage"]
             self.r.sadd("itslaw:failed", jid)
             return
         

@@ -9,18 +9,37 @@ from scrapy.exceptions import CloseSpider
 from itslaw.items import JudgementItem
 from redis import Redis, ConnectionPool
 from scrapy.conf import settings
+from fake_useragent import UserAgent
+
+ua = UserAgent()
 
 
 class HomepageRecommendSpider(scrapy.Spider):
     name = 'related'
-    allowed_domains = ['www.itslaw.com']
+    allowed_domains = ['itslaw.com']
+    custom_settings = {
+        # "LOG_LEVEL": "DEBUG",
+        "DOWNLOAD_TIMEOUT": 20,
+        # "DOWNLOAD_DELAY": 0.2,
+        "DOWNLOADER_MIDDLEWARES": {
+            # "itslaw.middlewares.ProxyMiddleware": 543,
+            "itslaw.middlewares.ItslawDownloaderMiddleware": 534
+        },
+        "DEFAULT_REQUEST_HEADERS": {
+            "User-Agent": ua.random, 
+            "Referer": "www.itslaw.com/search?searchMode=judgements&sortType=1&conditions=trialYear%2B1994%2B7%2B1994", 
+        },
+        "ITEM_PIPELINES": {
+            'itslaw.pipelines.ItslawPipeline': 300,
+        }
+    }
 
     def __init__(self):
         self.pool = ConnectionPool(host=settings["REDIS_HOST"], port=settings["REDIS_PORT"], decode_responses=True, db=0)
         self.r = Redis(connection_pool=self.pool)
     
     def start_requests(self):
-        for _ in range(10000000):
+        for _ in range(100):
             doc = self.r.srandmember("itslaw:start")
             if self.r.sismember("itslaw:crawled", doc):
                 continue
