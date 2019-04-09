@@ -3,12 +3,12 @@ import redis
 def load():
     r = redis.Redis()
     count = 0
-    with open("ids_shodan.dat", mode="r", encoding="utf-8") as f:
+    with open("ids_to_crawl.dat", mode="r", encoding="utf-8") as f:
         for line in f:
             jid = line.strip()
             if not jid:
                 break
-            r.sadd("itslaw:crawled", jid)
+            r.sadd("itslaw:start", jid)
             # if jid:
             #     if not r.sismember("itslaw:start", jid) and not r.sismember("itslaw:crawled", jid):
             #         res = r.sadd("itslaw:id", jid)

@@ -22,15 +22,25 @@ class CaseSpider(scrapy.Spider):
     base_url = "https://www.itslaw.com/api/v1/detail?"
     custom_settings = {
         # "LOG_LEVEL": "DEBUG",
-        "DOWNLOAD_TIMEOUT": 20,
+        "DOWNLOAD_TIMEOUT": 5,
         # "DOWNLOAD_DELAY": 0.2,
         "DOWNLOADER_MIDDLEWARES": {
-            # "itslaw.middlewares.ProxyMiddleware": 543,
-            "itslaw.middlewares.ItslawDownloaderMiddleware": 534
+            "itslaw.middlewares.ProxyMiddleware": 543,
+            # "itslaw.middlewares.ItslawDownloaderMiddleware": 534
         },
         "DEFAULT_REQUEST_HEADERS": {
+            "Cookie": "_t=0e9084b2-59b6-4cab-985f-be99b553e944; LXB_REFER=mail.qq.com; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1554555977,1554601580,1554601590,1554601609; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1554555977,1554601580,1554601591,1554601609; showSubSiteTip=false; subSiteCode=bj; sessionId=a0fa1674-5ef7-49b7-83c2-b804b2d522b2; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1554817712; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1554817712",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "DNT": "1",
+            "Host": "www.itslaw.com",
+            "If-Modified-Since": "Mon, 26 Jul 1997 05:00:00 GMT",
+            "Pragma": "no-cache",
             "User-Agent": ua.random, 
-            "Referer": "www.itslaw.com/search?searchMode=judgements&sortType=1&conditions=trialYear%2B1994%2B7%2B1994", 
+            "Referer": "https://www.itslaw.com/bj", 
         },
         "ITEM_PIPELINES": {
             'itslaw.pipelines.CasePipeline': 300,
@@ -63,8 +73,6 @@ class CaseSpider(scrapy.Spider):
                 url = self.base_url + urlencode(parameters)
                 yield Request(url=url)
             break
-
-
 
     def parse(self, response):
         jid = response.url.split("=")[-1]
