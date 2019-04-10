@@ -2,6 +2,7 @@
 import json
 from urllib.parse import urlencode, urlparse
 from time import sleep
+import os
 
 import scrapy
 from scrapy import Request
@@ -33,25 +34,28 @@ class HomepageRecommendSpider(scrapy.Spider):
             'itslaw.pipelines.ItslawPipeline': 300,
         }
     }
+    count = os.getenv("COUNT", default="")
+    key = f'itslaw:start{count}'
+    # $env:COUNT=""
 
     def __init__(self):
         self.pool = ConnectionPool(host=settings["REDIS_HOST"], port=settings["REDIS_PORT"], decode_responses=True, db=0)
         self.r = Redis(connection_pool=self.pool)
     
     def start_requests(self):
-        for _ in range(100):
-            doc = self.r.srandmember("itslaw:start")
-            if self.r.sismember("itslaw:crawled", doc):
-                continue
-            pageSize = 100
-            pageNo = 1
-            parameters = {
-                "pageSize": pageSize,
-                "pageNo": pageNo,
-            }
-
-            url = f"https://www.itslaw.com/api/v1/judgements/judgement/{doc}/relatedJudgements?" + urlencode(parameters)
-            yield Request(url=url, meta={"parameters": parameters, "doc": doc})
+        while True:
+            left = self.r.sdiffstore(self.key, self.key, "itslaw:crawled")
+            self.logger.info(f"[*] {self.key} left {left} cases to crawl.")
+            docs = self.r.srandmember(self.key, number=10000)
+            for doc in docs:
+                pageSize = 100
+                pageNo = 1
+                parameters = {
+                    "pageSize": pageSize,
+                    "pageNo": pageNo,
+                }
+                url = f"https://www.itslaw.com/api/v1/judgements/judgement/{doc}/relatedJudgements?" + urlencode(parameters)
+                yield Request(url=url, meta={"parameters": parameters, "doc": doc})
 
     def parse(self, response):
         res = json.loads(response.body_as_unicode())

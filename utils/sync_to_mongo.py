@@ -12,7 +12,7 @@ from bson import ObjectId
 
 client = pymongo.MongoClient(port=27017)
 db = client.atersoft
-coll = db.wusong_judgements_003
+coll = db.wusong_judgements_002
 
 r = Redis()
 
@@ -23,7 +23,7 @@ def upload():
             sleep(60*10)
             now = datetime.now().isoformat(timespec="seconds")
             res = r.scard("itslaw:judgement")
-            print(f"[{now}] {res} to sync...")
+            print(f"[{now}] sync {res} items...")
             continue
         try:
             doc = str(item, encoding="utf-8")
@@ -81,11 +81,11 @@ def load():
 
 def split(count):
     # for _ in range(count):
-    items = r.spop("itslaw:id", count)
+    items = r.spop("itslaw:start", count)
         # if not item:
         #     break
         # jid = str(item, encoding="utf-8")
-    r.sadd("itslaw:id1", *items)
+    r.sadd("itslaw:start3", *items)
 
 
 def remove_error():
@@ -102,5 +102,5 @@ def modify():
         r.sadd("itslaw:id", jid)
 
 if __name__ == "__main__":
-    # split(1000000)
-    upload()
+    split(1000000)
+    # upload()
