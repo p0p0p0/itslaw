@@ -42,8 +42,11 @@ def upload():
         
 
 def merge_id():
-    for i in range(14):
-        res = r.sdiffstore(f"itslaw:id{i}", f"itslaw:id{i}", "itslaw:jid")
+    # for i in range(14):
+    #     res = r.sdiffstore(f"itslaw:id{i}", f"itslaw:id{i}", "itslaw:jid")
+    #     print(res)
+    for i in range(5):
+        res = r.sdiffstore(f"itslaw:start{i}", f"itslaw:start{i}", "itslaw:crawled")
         print(res)
     # res = r.sunionstore("itslaw:crawled", "itslaw:crawled", "itslaw:jid")
     # print(res)
@@ -102,5 +105,5 @@ def modify():
         r.sadd("itslaw:id", jid)
 
 if __name__ == "__main__":
-    split(1000000)
-    # upload()
+    # split(1000000)
+    merge_id()
