@@ -100,6 +100,7 @@ COOKIES_ENABLED = False
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 RETRY_ENABLED = False
+DOWNLOAD_FAIL_ON_DATALOSS = False
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 LOG_LEVEL = "INFO"

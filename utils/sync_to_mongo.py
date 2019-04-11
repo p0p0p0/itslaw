@@ -12,7 +12,7 @@ from bson import ObjectId
 
 client = pymongo.MongoClient(port=27017)
 db = client.atersoft
-coll = db.wusong_judgements_002
+coll = db.wusong_judgements_003
 
 r = Redis()
 
@@ -106,4 +106,4 @@ def modify():
 
 if __name__ == "__main__":
     # split(1000000)
-    merge_id()
+    upload()
