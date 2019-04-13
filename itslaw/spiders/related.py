@@ -3,6 +3,7 @@ import json
 from urllib.parse import urlencode, urlparse
 from time import sleep
 import os
+import base64
 
 import scrapy
 from scrapy import Request
@@ -10,6 +11,7 @@ from scrapy.exceptions import CloseSpider
 from itslaw.items import JudgementItem
 from redis import Redis, ConnectionPool
 from scrapy.conf import settings
+from scrapy.utils.project import get_project_settings
 from fake_useragent import UserAgent
 
 ua = UserAgent()
@@ -34,6 +36,11 @@ class HomepageRecommendSpider(scrapy.Spider):
             'itslaw.pipelines.ItslawPipeline': 300,
         }
     }
+    settings = get_project_settings()
+    proxy_server = settings.get("PROXY_SERVER")
+    proxy_user = settings.get("PROXY_USER")
+    proxy_pass = settings.get("PROXY_PASS")
+    proxy_auth = "Basic " + base64.urlsafe_b64encode(bytes((proxy_user + ":" + proxy_pass), "ascii")).decode("utf8")
     count = os.getenv("COUNT", default="")
     key = f'itslaw:start{count}'
     # $env:COUNT=""
@@ -46,7 +53,7 @@ class HomepageRecommendSpider(scrapy.Spider):
         while True:
             left = self.r.sdiffstore(self.key, self.key, "itslaw:crawled")
             self.logger.info(f"[*] {self.key} left {left} cases to crawl.")
-            docs = self.r.srandmember(self.key, number=10000)
+            docs = self.r.srandmember(self.key, number=100000)
             for doc in docs:
                 pageSize = 100
                 pageNo = 1

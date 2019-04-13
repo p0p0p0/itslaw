@@ -12,7 +12,7 @@ from bson import ObjectId
 
 client = pymongo.MongoClient(port=27017)
 db = client.atersoft
-coll = db.wusong_judgements_003
+coll = db.wusong_judgements_004
 
 r = Redis()
 
@@ -20,7 +20,8 @@ def upload():
     while True:
         item = r.spop("itslaw:judgement")
         if not item:
-            sleep(60*10)
+            print("[*] sync done. wait for next 10 mins...")
+            sleep(60)
             now = datetime.now().isoformat(timespec="seconds")
             res = r.scard("itslaw:judgement")
             print(f"[{now}] sync {res} items...")
@@ -42,12 +43,12 @@ def upload():
         
 
 def merge_id():
-    # for i in range(14):
-    #     res = r.sdiffstore(f"itslaw:id{i}", f"itslaw:id{i}", "itslaw:jid")
-    #     print(res)
-    for i in range(5):
-        res = r.sdiffstore(f"itslaw:start{i}", f"itslaw:start{i}", "itslaw:crawled")
+    for i in range(14):
+        res = r.sdiffstore(f"itslaw:id{i}", f"itslaw:id{i}", "itslaw:jid")
         print(res)
+    # for i in range(5):
+    #     res = r.sdiffstore(f"itslaw:start{i}", f"itslaw:start{i}", "itslaw:crawled")
+    #     print(res)
     # res = r.sunionstore("itslaw:crawled", "itslaw:crawled", "itslaw:jid")
     # print(res)
     # res = r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:jid")
@@ -84,11 +85,11 @@ def load():
 
 def split(count):
     # for _ in range(count):
-    items = r.spop("itslaw:start", count)
+    items = r.spop("itslaw:start4", count)
         # if not item:
         #     break
         # jid = str(item, encoding="utf-8")
-    r.sadd("itslaw:start3", *items)
+    r.sadd("itslaw:start15", *items)
 
 
 def remove_error():
@@ -101,9 +102,12 @@ def modify():
     items = r.smembers("itslaw:failed")
     for item in items:
         url = str(item, encoding="utf-8")
-        jid = url.split("=")[-1]
-        r.sadd("itslaw:id", jid)
+        if url.startswith("http"):
+            jid = url.split("=")[-1]
+            r.sadd("itslaw:id", jid)
+        else:
+            r.sadd("itslaw:id", item)
 
 if __name__ == "__main__":
-    # split(1000000)
-    upload()
+    split(1000000)
+    # merge_id()

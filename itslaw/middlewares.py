@@ -159,7 +159,7 @@ class ProxyMiddleware(object):
         # - return None: continue processing this exception
         # - return a Response object: stops process_exception() chain
         # - return a Request object: stops process_exception() chain
-        if isinstance(exception, (ResponseNeverReceived, ConnectionRefusedError, TimeoutError)):
+        if isinstance(exception, (ResponseNeverReceived, ConnectionRefusedError, TimeoutError, TCPTimedOutError)):
             spider.logger.debug(f"[-] Exception: {type(exception)}")
             raise IgnoreRequest(request.url)
         elif isinstance(exception, (TunnelError,)):

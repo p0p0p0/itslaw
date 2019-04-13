@@ -19,7 +19,7 @@ ua = UserAgent()
 class CaseSpider(scrapy.Spider):
     name = 'case'
     allowed_domains = ['www.itslaw.com']
-    # base_url = "https://www.itslaw.com/api/v1/detail?"
+    base_url = "https://www.itslaw.com/api/v1/detail?"
     custom_settings = {
         # "LOG_LEVEL": "DEBUG",
         "DOWNLOAD_TIMEOUT": 5,
@@ -28,28 +28,28 @@ class CaseSpider(scrapy.Spider):
             "itslaw.middlewares.ProxyMiddleware": 543,
             # "itslaw.middlewares.ItslawDownloaderMiddleware": 534
         },
-        # "DEFAULT_REQUEST_HEADERS": {
-        #     "Cookie": "_t=0e9084b2-59b6-4cab-985f-be99b553e944; LXB_REFER=mail.qq.com; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1554555977,1554601580,1554601590,1554601609; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1554555977,1554601580,1554601591,1554601609; showSubSiteTip=false; subSiteCode=bj; sessionId=a0fa1674-5ef7-49b7-83c2-b804b2d522b2; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1554817712; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1554817712",
-        #     "Accept": "application/json, text/plain, */*",
-        #     "Accept-Encoding": "gzip, deflate, br",
-        #     "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
-        #     "Cache-Control": "no-cache",
-        #     "Connection": "keep-alive",
-        #     "DNT": "1",
-        #     "Host": "www.itslaw.com",
-        #     "If-Modified-Since": "Mon, 26 Jul 1997 05:00:00 GMT",
-        #     "Pragma": "no-cache",
-        #     "User-Agent": ua.random, 
-        #     "Referer": "https://m.itslaw.com/mobile/", 
-        # },
         "DEFAULT_REQUEST_HEADERS": {
-            "Accept": "application/json, text/javascript, */*; q=0.01",
-            "Content-Type": "application/json;charset=utf-8",
+            "Cookie": "_t=0e9084b2-59b6-4cab-985f-be99b553e944; LXB_REFER=mail.qq.com; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1554555977,1554601580,1554601590,1554601609; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1554555977,1554601580,1554601591,1554601609; showSubSiteTip=false; subSiteCode=bj; sessionId=a0fa1674-5ef7-49b7-83c2-b804b2d522b2; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1554817712; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1554817712",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
             "DNT": "1",
-            "Referer": "https://m.itslaw.com/mobile/",
-            "User-Agent": "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1",
-            "X-Requested-With": "XMLHttpRequest",
+            "Host": "www.itslaw.com",
+            "If-Modified-Since": "Mon, 26 Jul 1997 05:00:00 GMT",
+            "Pragma": "no-cache",
+            "User-Agent": ua.random, 
+            "Referer": "https://www.itslaw.com/", 
         },
+        # "DEFAULT_REQUEST_HEADERS": {
+        #     "Accept": "application/json, text/javascript, */*; q=0.01",
+        #     "Content-Type": "application/json;charset=utf-8",
+        #     "DNT": "1",
+        #     "Referer": "https://m.itslaw.com/mobile/",
+        #     "User-Agent": "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1",
+        #     "X-Requested-With": "XMLHttpRequest",
+        # },
         "ITEM_PIPELINES": {
             'itslaw.pipelines.CasePipeline': 300,
         }
@@ -74,18 +74,23 @@ class CaseSpider(scrapy.Spider):
             docs = self.r.srandmember(self.key, number=10000)
             for doc in docs:
                 judgementId = str(doc, encoding="utf-8")
-                # parameters = {
-                #     "timestamp": int(time()*1000),
-                #     "judgementId": judgementId,
-                # }
-                # url = self.base_url + urlencode(parameters)
-                url = f"https://m.itslaw.com/mobile/judgements/judgement/{judgementId}"
+                parameters = {
+                    "timestamp": int(time()*1000),
+                    "judgementId": judgementId,
+                }
+                url = self.base_url + urlencode(parameters)
+                # url = f"https://m.itslaw.com/mobile/judgements/judgement/{judgementId}"
                 yield Request(url=url)
+            else:
+                sleep(60)
 
 
     def parse(self, response):
-        jid = response.url.split("/")[-1]
-        res = json.loads(response.body_as_unicode())
+        jid = response.url.split("=")[-1]
+        try:
+            res = json.loads(response.body_as_unicode())
+        except Exception as e:
+            return
         code = res["result"]["code"]
         
         # save failed id to redis

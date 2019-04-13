@@ -60,7 +60,7 @@ def get_subsites():
 def get_tree(url=base_url):
     read = []
     write = []
-    filter = "reason"
+    filter = "trialYear"
     return crawl(url, filter, read, write)     
 
 
@@ -205,35 +205,35 @@ def condition_parser(filter, code, each, read, write):
 if __name__ == "__main__":
     s = Session()
     # 生成初始链接
-    # for i in range(2020, 1020, -1):
-    #     url = f"https://www.itslaw.com/api/v1/caseFiles?startIndex=0&countPerPage=20&sortType=1&conditions=trialYear%2B{i}%2B7%2B{i}"
-    #     files, folders = get_tree(url=url)
-    #     for url, count in files:
-    #         with open("read.txt", mode="a", encoding="utf-8") as f:
-    #             f.write(f"{count}\t{url}\n")
-    #     for url, count in folders:
-    #         with open("write.txt", mode="a", encoding="utf-8") as f:
-    #             f.write(f"{count}\t{url}\n")
-    
-    lines = []
-
-    with open("write.txt", mode="r", encoding="utf-8") as w:
-        for line in w:
-            count, url = line.strip().split()
-            lines.append((count, url))
-    
-    for count, url in lines:
+    for i in range(2020, 1959, -1):
+        url = f"https://www.itslaw.com/api/v1/caseFiles?startIndex=0&countPerPage=20&sortType=1&conditions=trialYear%2B{i}%2B7%2B{i}"
         files, folders = get_tree(url=url)
-        logger.debug(len(files))
-        logger.debug(len(folders))
-        # for each in files:
-        #     logger.debug(f"files: {each}")
-        # for each in folders:
-        #     logger.debug(f"folders: {folders}")
-
         for url, count in files:
             with open("read.txt", mode="a", encoding="utf-8") as f:
                 f.write(f"{count}\t{url}\n")
         for url, count in folders:
-            with open("write1.txt", mode="a", encoding="utf-8") as f:
+            with open("write.txt", mode="a", encoding="utf-8") as f:
                 f.write(f"{count}\t{url}\n")
+    
+    # lines = []
+
+    # with open("write.txt", mode="r", encoding="utf-8") as w:
+    #     for line in w:
+    #         count, url = line.strip().split()
+    #         lines.append((count, url))
+    
+    # for count, url in lines:
+    #     files, folders = get_tree(url=url)
+    #     logger.debug(len(files))
+    #     logger.debug(len(folders))
+    #     # for each in files:
+    #     #     logger.debug(f"files: {each}")
+    #     # for each in folders:
+    #     #     logger.debug(f"folders: {folders}")
+
+    #     for url, count in files:
+    #         with open("read.txt", mode="a", encoding="utf-8") as f:
+    #             f.write(f"{count}\t{url}\n")
+    #     for url, count in folders:
+    #         with open("write1.txt", mode="a", encoding="utf-8") as f:
+    #             f.write(f"{count}\t{url}\n")
