@@ -61,18 +61,13 @@ def get_case_number(url):
             judgements = searchResult["judgements"]
             numbers = set()
             for each in judgements:
-                case_number = each["caseNumber"]
-                number = patten.findall(case_number)[0]
-                template = case_number.replace(number, "xxx")
-                condition = f"conditions=searchWord%2B{template}%2B1%2B{template}"
-                numbers.add(condition)
+                case_number = each.get("caseNumber", "")
+                numbers.add(case_number)
             else:
-                for c in numbers:
-                    u = url + "&" + c
-                    with open("url_sw.txt", mode="a", encoding="utf-8") as f:
-                        f.write(u + "\n")
-                else:
-                    return            
+                with open("case_numbers.txt", mode="a", encoding="utf-8") as f:
+                    f.write(", ".join(list(numbers)) + "\n")
+                return
+         
 
 
 if __name__ == "__main__":

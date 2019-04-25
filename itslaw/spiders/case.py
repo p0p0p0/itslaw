@@ -29,7 +29,7 @@ class CaseSpider(scrapy.Spider):
             # "itslaw.middlewares.ItslawDownloaderMiddleware": 534
         },
         "DEFAULT_REQUEST_HEADERS": {
-            "Cookie": "_t=0e9084b2-59b6-4cab-985f-be99b553e944; LXB_REFER=mail.qq.com; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1554555977,1554601580,1554601590,1554601609; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1554555977,1554601580,1554601591,1554601609; showSubSiteTip=false; subSiteCode=bj; sessionId=a0fa1674-5ef7-49b7-83c2-b804b2d522b2; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1554817712; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1554817712",
+            "Cookie": "_t=0e9084b2-59b6-4cab-985f-be99b553e944; showSubSiteTip=false; subSiteCode=bj; LXB_REFER=www.wusong.com; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1554601609,1555339418,1555339440,1555339451; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1554601609,1555339418,1555339440,1555339451; sessionId=f9522bd9-b9de-4e5c-8fee-b952266eace5; _u=fd8bf768-bda5-456d-8d4e-7976c67ef897; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1555915033; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1555915033",
             "Accept": "application/json, text/plain, */*",
             "Accept-Encoding": "gzip, deflate, br",
             "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
@@ -68,10 +68,14 @@ class CaseSpider(scrapy.Spider):
     # $env:COUNT=""
 
     def start_requests(self):
+        self.name += self.count
         while True:
+            self.r.sdiffstore(self.key, self.key, "itslaw:failed")
             left = self.r.sdiffstore(self.key, self.key, "itslaw:jid")
-            self.logger.info(f"[*] {self.count} left {left} cases to crawl.")
+            self.logger.info(f"[{left}] cases to crawl.")
             docs = self.r.srandmember(self.key, number=10000)
+            if not docs:
+                break
             for doc in docs:
                 judgementId = str(doc, encoding="utf-8")
                 parameters = {
@@ -80,10 +84,7 @@ class CaseSpider(scrapy.Spider):
                 }
                 url = self.base_url + urlencode(parameters)
                 # url = f"https://m.itslaw.com/mobile/judgements/judgement/{judgementId}"
-                yield Request(url=url)
-            else:
-                sleep(60)
-
+                yield Request(url=url, dont_filter=True)
 
     def parse(self, response):
         jid = response.url.split("=")[-1]

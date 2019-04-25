@@ -43,12 +43,12 @@ def dump_to_txt():
 
 def load():
     r = redis.Redis()
-    with open("ids.dat", mode="r", encoding="utf-8") as f:
+    with open("ids_to_crawl.dat", mode="r", encoding="utf-8") as f:
         for line in f:
             jid = line.strip()
-            r.sadd("itslaw:crawled2", jid)
+            r.sadd("itslaw:id", jid)
 
 
 if __name__ == "__main__":
-    export("wusong_judgements_001")
-    # dump_to_txt()
+    # export("wusong_judgements_001")
+    load()

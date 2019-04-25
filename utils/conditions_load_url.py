@@ -37,10 +37,14 @@ def load_to_redis(path):
     with open(path, mode="r", encoding="utf-8") as f:
         for line in f:
             count, url = line.strip().split()
-            for i in range(0, 400, 20):
+            for i in range(0, int(count), 20):
+                if i > 400:
+                    break
                 p = url.replace("startIndex=0", f"startIndex={i}")
-                p = p.replace("sortType=1", "sortType=2")
-                r.sadd(f"conditions:page1", p)
+                r.sadd(f"condition:all", p)
+                if int(count) > 400:
+                    p = p.replace("sortType=1", "sortType=2")
+                    r.sadd(f"condition:all", p)
 
 
 def count(path):
@@ -58,5 +62,22 @@ def count(path):
         print(ret)
 
 
+def filter_pages():
+    members = r.smembers("condition:all")
+    for each in members:
+        if str(each, encoding="utf-8").startswith("https://www.itslaw.com/api/v1/caseFiles?startIndex=0"):
+            r.sadd("condition:one", each)
+        else:
+            r.sadd("condition:more", each)
+
+def split_pages(part):
+    members = r.smembers("condition:more")
+    for i, each in enumerate(members):
+        p = i % part
+        r.sadd(f"condition:more{p}", each)
+         
+
 if __name__ == "__main__":
-    load_to_redis(Path("../docs/write.txt"))
+    # load_to_redis(Path("condition.txt"))
+    # filter_pages()
+    split_pages(6)

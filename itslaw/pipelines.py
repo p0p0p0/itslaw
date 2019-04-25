@@ -36,8 +36,11 @@ class ConditionPipeline(object):
 class CasePipeline(object):
     def process_item(self, item, spider):
         fullJudgement = item["item"]
-        jid = fullJudgement["id"]
-        spider.r.sadd("itslaw:jid", jid)
-        spider.r.sadd("itslaw:judgement", json.dumps(fullJudgement, ensure_ascii=False))
-        spider.logger.debug(f"[+] {jid} saved.")
-        return item
+        jid = fullJudgement.get("id", None)
+        if not jid:
+            raise DropItem()
+        else:
+            spider.r.sadd("itslaw:jid", jid)
+            spider.r.sadd("itslaw:judgement", json.dumps(fullJudgement, ensure_ascii=False))
+            spider.logger.debug(f"[+] {jid} saved.")
+            return item

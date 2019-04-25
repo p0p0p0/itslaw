@@ -29,6 +29,15 @@ class HomepageRecommendSpider(scrapy.Spider):
             "itslaw.middlewares.ItslawDownloaderMiddleware": 534
         },
         "DEFAULT_REQUEST_HEADERS": {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "DNT": "1",
+            "Host": "www.itslaw.com",
+            "If-Modified-Since": "Mon, 26 Jul 1997 05:00:00 GMT",
+            "Pragma": "no-cache",
             "User-Agent": ua.random, 
             "Referer": "www.itslaw.com/search?searchMode=judgements&sortType=1&conditions=trialYear%2B1994%2B7%2B1994", 
         },
@@ -44,6 +53,7 @@ class HomepageRecommendSpider(scrapy.Spider):
     count = os.getenv("COUNT", default="")
     key = f'itslaw:start{count}'
     # $env:COUNT=""
+    # more than 5 server would crash
 
     def __init__(self):
         self.pool = ConnectionPool(host=settings["REDIS_HOST"], port=settings["REDIS_PORT"], decode_responses=True, db=0)
@@ -53,6 +63,8 @@ class HomepageRecommendSpider(scrapy.Spider):
         while True:
             left = self.r.sdiffstore(self.key, self.key, "itslaw:crawled")
             self.logger.info(f"[*] {self.key} left {left} cases to crawl.")
+            if 0 == left:
+                break
             docs = self.r.srandmember(self.key, number=100000)
             for doc in docs:
                 pageSize = 100
@@ -63,6 +75,8 @@ class HomepageRecommendSpider(scrapy.Spider):
                 }
                 url = f"https://www.itslaw.com/api/v1/judgements/judgement/{doc}/relatedJudgements?" + urlencode(parameters)
                 yield Request(url=url, meta={"parameters": parameters, "doc": doc})
+            else:
+                break
 
     def parse(self, response):
         res = json.loads(response.body_as_unicode())

@@ -12,7 +12,7 @@ from bson import ObjectId
 
 client = pymongo.MongoClient(port=27017)
 db = client.atersoft
-coll = db.wusong_judgements_004
+coll = db.wusong_judgements_006
 
 r = Redis()
 
@@ -20,7 +20,7 @@ def upload():
     while True:
         item = r.spop("itslaw:judgement")
         if not item:
-            print("[*] sync done. wait for next 10 mins...")
+            print("[*] sync done. wait for next 60 secs...")
             sleep(60)
             now = datetime.now().isoformat(timespec="seconds")
             res = r.scard("itslaw:judgement")
@@ -43,15 +43,15 @@ def upload():
         
 
 def merge_id():
-    for i in range(14):
-        res = r.sdiffstore(f"itslaw:id{i}", f"itslaw:id{i}", "itslaw:jid")
-        print(res)
+    # for i in range(14):
+    #     res = r.sdiffstore(f"itslaw:id{i}", f"itslaw:id{i}", "itslaw:jid")
+    #     print(res)
     # for i in range(5):
     #     res = r.sdiffstore(f"itslaw:start{i}", f"itslaw:start{i}", "itslaw:crawled")
     #     print(res)
-    # res = r.sunionstore("itslaw:crawled", "itslaw:crawled", "itslaw:jid")
-    # print(res)
-    # res = r.sdiffstore("itslaw:id", "itslaw:id", "itslaw:jid")
+    res = r.sunionstore("itslaw:crawled", "itslaw:crawled", "itslaw:jid")
+    print(res)
+    # res = r.sdiffstore("itslaw:id0", "itslaw:id0", "itslaw:jid")
     # print(res)
 
 
@@ -83,13 +83,18 @@ def load():
             except Exception as e:
                 print(e)
 
+def import_ids():
+    with open("ids_to_crawl.dat", mode="r", encoding="utf-8") as f:
+        for line in f.readlines():
+            r.sadd("itslaw:id0", line.strip())
+
 def split(count):
     # for _ in range(count):
-    items = r.spop("itslaw:start4", count)
+    items = r.spop("itslaw:id1", count)
         # if not item:
         #     break
         # jid = str(item, encoding="utf-8")
-    r.sadd("itslaw:start15", *items)
+    r.sadd("itslaw:id0", *items)
 
 
 def remove_error():
@@ -108,6 +113,39 @@ def modify():
         else:
             r.sadd("itslaw:id", item)
 
+def export():
+    for doc in coll.find({})[37851338:]:
+        jid = doc.get("_id", "")
+        prev_id = doc.get("previousId", "")
+        next_id = doc.get("nextId", "")
+        court = doc.get("court", "")
+        judges = doc.get("judges", "")
+        source = doc.get("sourceUrl", "")
+        case_number = doc.get("caseNumber", "")
+        with open("scraped.dat", mode="a", encoding="utf-8") as f:
+            f.write(jid + "\n")
+        with open("prev.dat", mode="a", encoding="utf-8") as f:
+            f.write(prev_id + "\n")
+        with open("next.dat", mode="a", encoding="utf-8") as f:
+            f.write(next_id + "\n")
+        r.sadd("itslaw:court", json.dumps(court, ensure_ascii=False))
+        for judge in judges:
+            r.sadd("itslaw:judge", json.dumps(judge, ensure_ascii=False))
+        with open("source.dat", mode="a", encoding="utf-8") as f:
+            f.write(source + "\n")
+        with open("casenumber.dat", mode="a", encoding="utf-8") as f:
+            f.write(case_number + "\n")
+
+def split_to_parts(part):
+    members = r.smembers("itslaw:id")
+    for i, each in enumerate(members):
+        p = i % part
+        r.sadd(f"itslaw:id{p}", each)
+
 if __name__ == "__main__":
-    split(1000000)
-    # merge_id()
+    # upload()
+    # split(100000)
+    # split_to_parts(6)
+    merge_id()
+    # import_ids()
+
