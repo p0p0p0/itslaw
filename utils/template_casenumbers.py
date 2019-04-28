@@ -6,7 +6,7 @@ r = Redis()
 templates = [str(each, encoding="utf-8") for each in r.zrange("casenumber:template", 0, -1)]
 patten = compile(r"(\d+)号")
 
-with open("201703.txt", mode="r", encoding="utf-8") as f:
+with open("2016.txt", mode="r", encoding="utf-8") as f:
     try:
         for line in f:
             number = patten.findall(line.strip())
@@ -20,3 +20,4 @@ with open("201703.txt", mode="r", encoding="utf-8") as f:
                 # print(f"[+] scanning {line.strip()}")
     except KeyboardInterrupt:
         print(line.strip())
+        print("\a")

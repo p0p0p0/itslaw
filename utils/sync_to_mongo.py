@@ -40,7 +40,7 @@ def upload():
         except Exception as e:
             r.sadd("itslaw:judgement", item)
             print(e)
-        
+
 
 def merge_id():
     # for i in range(14):
@@ -49,10 +49,10 @@ def merge_id():
     # for i in range(5):
     #     res = r.sdiffstore(f"itslaw:start{i}", f"itslaw:start{i}", "itslaw:crawled")
     #     print(res)
-    res = r.sunionstore("itslaw:crawled", "itslaw:crawled", "itslaw:jid")
+    # res = r.sunionstore("itslaw:crawled", "itslaw:crawled", "itslaw:id")
+
+    res = r.sdiffstore("jufaanli:casenumber", "jufaanli:casenumber", "panjueshu:casenumber1")
     print(res)
-    # res = r.sdiffstore("itslaw:id0", "itslaw:id0", "itslaw:jid")
-    # print(res)
 
 
 def dump():
@@ -84,9 +84,9 @@ def load():
                 print(e)
 
 def import_ids():
-    with open("ids_to_crawl.dat", mode="r", encoding="utf-8") as f:
+    with open("judgements.txt", mode="r", encoding="utf-8") as f:
         for line in f.readlines():
-            r.sadd("itslaw:id0", line.strip())
+            r.sadd("itslaw:id", line.strip())
 
 def split(count):
     # for _ in range(count):
