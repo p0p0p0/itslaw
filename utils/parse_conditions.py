@@ -189,7 +189,7 @@ def condition_parser(filter, code, each, read, write):
 if __name__ == "__main__":
     s = Session()
     # 生成初始链接
-    # for i in range(2020, 1959, -1):
+    # for i in range(2020, 2017, -1):
     #     url = f"https://www.itslaw.com/api/v1/caseFiles?startIndex=0&countPerPage=20&sortType=1&conditions=trialYear%2B{i}%2B7%2B{i}"
     #     files, folders = get_tree(url=url)
     #     for url, count in files:

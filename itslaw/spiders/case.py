@@ -29,7 +29,7 @@ class CaseSpider(scrapy.Spider):
             # "itslaw.middlewares.ItslawDownloaderMiddleware": 534
         },
         "DEFAULT_REQUEST_HEADERS": {
-            "Cookie": "_t=0e9084b2-59b6-4cab-985f-be99b553e944; showSubSiteTip=false; subSiteCode=bj; LXB_REFER=www.wusong.com; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1554601609,1555339418,1555339440,1555339451; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1554601609,1555339418,1555339440,1555339451; sessionId=f9522bd9-b9de-4e5c-8fee-b952266eace5; _u=fd8bf768-bda5-456d-8d4e-7976c67ef897; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1555915033; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1555915033",
+            "Cookie": "_t=0e9084b2-59b6-4cab-985f-be99b553e944; showSubSiteTip=false; subSiteCode=bj; LXB_REFER=www.wusong.com; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1555339418,1555339440,1555339451; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1555339418,1555339440,1555339451; sessionId=53b834b2-5dc8-4be5-889f-c5c425f51fc6; _u=8768e601-6c73-4ff3-941a-99f77f09b573; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1557581284; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1557581284",
             "Accept": "application/json, text/plain, */*",
             "Accept-Encoding": "gzip, deflate, br",
             "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",

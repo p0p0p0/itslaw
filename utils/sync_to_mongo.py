@@ -12,7 +12,7 @@ from bson import ObjectId
 
 client = pymongo.MongoClient(port=27017)
 db = client.atersoft
-coll = db.wusong_judgements_006
+coll = db.wusong_judgements_007
 
 r = Redis()
 
@@ -143,9 +143,9 @@ def split_to_parts(part):
         r.sadd(f"itslaw:id{p}", each)
 
 if __name__ == "__main__":
-    # upload()
+    upload()
     # split(100000)
     # split_to_parts(6)
-    merge_id()
+    # merge_id()
     # import_ids()
 

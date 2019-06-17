@@ -29,7 +29,7 @@ class ConditionSpider(scrapy.Spider):
         "DEFAULT_REQUEST_HEADERS": {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3724.8 Safari/537.36", 
             "Referer": "https://www.itslaw.com/search?searchMode=judgements&sortType=1&conditions=trialYear%2B1994%2B7%2B1994",
-            "Cookie": "_t=0e9084b2-59b6-4cab-985f-be99b553e944; showSubSiteTip=false; subSiteCode=bj; LXB_REFER=www.wusong.com; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1554601609,1555339418,1555339440,1555339451; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1554601609,1555339418,1555339440,1555339451; sessionId=f3252d05-e43e-4eda-acef-a56d78a3cdb8; _u=dc0413b3-06a9-4fb2-b5e5-24673d73efeb; _i=879d0edc-e45a-4e59-906c-93f076e8d0d6; _p=08204e75-0309-43de-98a9-7c397d0670c5; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1556102661; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1556102661",
+            "Cookie": "_t=0e9084b2-59b6-4cab-985f-be99b553e944; showSubSiteTip=false; subSiteCode=bj; LXB_REFER=www.wusong.com; Hm_lvt_bc6f194cb44b24b9f44f1c8766c28008=1555339418,1555339440,1555339451; Hm_lvt_e496ad63f9a0581b5e13ab0975484c5c=1555339418,1555339440,1555339451; sessionId=53b834b2-5dc8-4be5-889f-c5c425f51fc6; _u=8768e601-6c73-4ff3-941a-99f77f09b573; Hm_lpvt_bc6f194cb44b24b9f44f1c8766c28008=1557581284; Hm_lpvt_e496ad63f9a0581b5e13ab0975484c5c=1557581284",
         },
         "ITEM_PIPELINES": {
             'itslaw.pipelines.ConditionPipeline': 300,
@@ -44,7 +44,7 @@ class ConditionSpider(scrapy.Spider):
     proxy_auth = "Basic " + base64.urlsafe_b64encode(bytes((proxy_user + ":" + proxy_pass), "ascii")).decode("utf8")
     pool = ConnectionPool(host=redis_host, port=redis_port, db=0)
     r = Redis(connection_pool=pool)
-    key = f'condition:more{os.getenv("COUNT", "")}'
+    key = f'condition:searchword{os.getenv("COUNT", "")}'
     # key = f'conditions:error'
     
     def start_requests(self):

@@ -3,10 +3,10 @@ import pymongo
 import redis
 
 def export(collection):
-    client = pymongo.MongoClient(port=27017)
-    db = client.atersoft
+    client = pymongo.MongoClient(port=27018)
+    db = client.itslaw
     coll = db[collection]
-    for i, doc in enumerate(coll.find({}), start=24541093):
+    for i, doc in enumerate(coll.find({}), start=1):
         filename = f"{(i//100000)+1:#03}"
         jid = doc["_id"]
         if not isinstance(jid, (str,)):
@@ -50,5 +50,5 @@ def load():
 
 
 if __name__ == "__main__":
-    # export("wusong_judgements_001")
-    load()
+    export("judgements")
+    # load()

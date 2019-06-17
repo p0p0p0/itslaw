@@ -77,7 +77,13 @@ def split_pages(part):
         r.sadd(f"condition:more{p}", each)
          
 
+def import_search_word():
+    for i in range(1, 20000):
+        url = f"https://www.itslaw.com/api/v1/caseFiles?startIndex=0&countPerPage=20&sortType=1&conditions=searchWord%2B%EF%BC%882018%EF%BC%89%E5%86%8002%E6%89%A7{i}%E5%8F%B7%2B1%2B%EF%BC%882018%EF%BC%89%E5%86%8002%E6%89%A7{i}%E5%8F%B7"
+        r.sadd("condition:searchword", url)
+
 if __name__ == "__main__":
     # load_to_redis(Path("condition.txt"))
     # filter_pages()
-    split_pages(6)
+    import_search_word()
+
